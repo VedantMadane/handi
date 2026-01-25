@@ -1,0 +1,68 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2025-01-25 10:48+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: app/templates/base.html:26
+msgid "Home"
+msgstr "मुख्य पान"
+
+#: app/templates/base.html:26
+msgid "Darshan"
+msgstr "दर्शन"
+
+#: app/templates/base.html:27
+msgid "Events"
+msgstr "कार्यक्रम"
+
+#: app/templates/base.html:28
+msgid "Open Ledger"
+msgstr "खुले खाते"
+
+#: app/templates/base.html:29
+msgid "Login"
+msgstr "लॉग इन"
+
+#: app/templates/ledger.html:4
+msgid "Open Donation Ledger"
+msgstr "दान खाते"
+
+#: app/templates/ledger.html:5
+msgid "A transparent, immutable record of all contributions."
+msgstr "सर्व देणग्यांची पारदर्शक आणि अपरिवर्तनीय नोंद."
+
+#: app/templates/ledger.html:10
+msgid "ID"
+msgstr "क्रमांक"
+
+#: app/templates/ledger.html:11
+msgid "Amount"
+msgstr "रक्कम"
+
+#: app/templates/ledger.html:12
+msgid "Currency"
+msgstr "चलन"
+
+#: app/templates/ledger.html:13
+msgid "Purpose"
+msgstr "उद्देश"
+
+#: app/templates/ledger.html:14
+msgid "Donor ID"
+msgstr "देणगीदार क्रमांक"
+
+#: app/templates/ledger.html:15
+msgid "Timestamp"
+msgstr "वेळ"
+
+#: app/templates/ledger.html:16
+msgid "Record Hash (SHA-256)"
+msgstr "हॅश (SHA-256)"

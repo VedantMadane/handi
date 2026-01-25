@@ -8,7 +8,7 @@ LOCALE_DIR = os.path.join(os.path.dirname(__file__), "locales")
 def get_locale(request: Request) -> str:
     # 1. Query Param
     lang = request.query_params.get("lang")
-    if lang in ["en", "es"]:
+    if lang in ["en", "es", "hi", "mr", "sa"]:
         return lang
 
     # 2. Cookie (Could implement later)
