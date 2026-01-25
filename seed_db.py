@@ -4,10 +4,18 @@ from app.models import Event, Donation, User, UserRole
 from app.services import create_donation
 from datetime import datetime, timedelta
 
+from sqlalchemy import select
+
 async def seed():
     print("Initializing database...")
     await init_db()
     async with AsyncSessionLocal() as session:
+        # Check if Admin User exists
+        result = await session.execute(select(User).where(User.username == "admin"))
+        if result.scalars().first():
+            print("Database already seeded. Skipping.")
+            return
+
         # Create Admin User
         user = User(username="admin", full_name="Admin User", password_hash="hash", role=UserRole.ADMIN)
         session.add(user)
