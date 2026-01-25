@@ -45,6 +45,10 @@ class Donation(Base):
     note: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     timestamp: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
+    # Payment Gateway Fields
+    payment_gateway: Mapped[Optional[str]] = mapped_column(String, nullable=True) # e.g. "razorpay", "cash"
+    transaction_id: Mapped[Optional[str]] = mapped_column(String, unique=True, nullable=True)
+
     # Immutable Ledger Fields
     previous_hash: Mapped[str] = mapped_column(String) # Hash of the previous record
     record_hash: Mapped[str] = mapped_column(String, unique=True) # Hash of this record (including prev_hash)

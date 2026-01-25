@@ -17,5 +17,79 @@
             <p class="mt-2 text-muted">Live streaming from the sanctum.</p>
         </div>
     </div>
+
+    <div class="card mt-4">
+        <div class="card-header bg-success text-white">
+            {{ _('Donate') }}
+        </div>
+        <div class="card-body">
+            <p class="card-text">{{ _('Support the temple by donating securely via Razorpay.') }}</p>
+            <div class="row justify-content-center">
+                <div class="col-md-4">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">₹</span>
+                        <input type="number" id="donationAmount" class="form-control" placeholder="101" value="101">
+                        <button class="btn btn-primary" onclick="donate()">{{ _('Donate Now') }}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+async function donate() {
+    const amount = document.getElementById("donationAmount").value;
+
+    // 1. Create Order
+    const response = await fetch("/donations/create_order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: parseFloat(amount), currency: "INR" })
+    });
+
+    if (!response.ok) {
+        alert("Error creating order");
+        return;
+    }
+
+    const order = await response.json();
+
+    // 2. Open Razorpay Checkout
+    var options = {
+        "key": order.key_id,
+        "amount": order.amount,
+        "currency": order.currency,
+        "name": "Handi Temple",
+        "description": "Donation",
+        "order_id": order.id,
+        "handler": async function (response){
+            // 3. Verify Payment
+            const verifyResponse = await fetch("/donations/verify", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_signature: response.razorpay_signature,
+                    amount: parseFloat(amount),
+                    currency: "INR",
+                    purpose: "Online Donation"
+                })
+            });
+
+            if (verifyResponse.ok) {
+                alert("Donation Successful! Added to Open Ledger.");
+                window.location.href = "/ledger";
+            } else {
+                alert("Verification Failed");
+            }
+        },
+        "theme": { "color": "#198754" }
+    };
+    var rzp1 = new Razorpay(options);
+    rzp1.open();
+}
+</script>
 {% endblock %}

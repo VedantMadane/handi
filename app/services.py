@@ -11,7 +11,16 @@ async def calculate_donation_hash(prev_hash: str, amount: float, currency: str, 
     data = f"{prev_hash}{amount}{currency}{donor_id}{ts_str}{purpose}"
     return hashlib.sha256(data.encode()).hexdigest()
 
-async def create_donation(db: AsyncSession, amount: float, donor_id: int, purpose: str, currency: str = "USD", note: str = None) -> Donation:
+async def create_donation(
+    db: AsyncSession,
+    amount: float,
+    donor_id: int,
+    purpose: str,
+    currency: str = "USD",
+    note: str = None,
+    payment_gateway: str = None,
+    transaction_id: str = None
+) -> Donation:
     # 1. Get the latest donation to find the previous hash
     # Order by ID desc to get the last one
     stmt = select(Donation).order_by(desc(Donation.id)).limit(1)
@@ -27,6 +36,8 @@ async def create_donation(db: AsyncSession, amount: float, donor_id: int, purpos
     timestamp = datetime.utcnow()
 
     # 2. Calculate new hash (Now includes currency)
+    # Note: We do NOT include transaction_id in the hash to keep the core ledger logic consistent
+    # even if external payment details change or are added later.
     record_hash = await calculate_donation_hash(prev_hash, amount, currency, donor_id, timestamp, purpose)
 
     # 3. Create record
@@ -38,7 +49,9 @@ async def create_donation(db: AsyncSession, amount: float, donor_id: int, purpos
         note=note,
         timestamp=timestamp,
         previous_hash=prev_hash,
-        record_hash=record_hash
+        record_hash=record_hash,
+        payment_gateway=payment_gateway,
+        transaction_id=transaction_id
     )
 
     db.add(new_donation)

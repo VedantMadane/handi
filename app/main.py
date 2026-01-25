@@ -3,6 +3,7 @@ from strawberry.fastapi import GraphQLRouter
 from app.schema import schema
 from app.database import get_db, init_db
 from app.routes.views import router as view_router
+from app.routes.payments import router as payment_router
 from app.routes.views import templates # Import templates to add extension
 from app.i18n import get_locale, get_translations
 from contextlib import asynccontextmanager
@@ -53,3 +54,4 @@ async def add_translation_context(request: Request, call_next):
 
 app.include_router(graphql_app, prefix="/graphql")
 app.include_router(view_router)
+app.include_router(payment_router)

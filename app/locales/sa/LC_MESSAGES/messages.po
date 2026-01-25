@@ -1,11 +1,14 @@
+
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-01-25 10:48+0000\n"
+"POT-Creation-Date: 2026-01-25 12:44+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: sa\n"
+"Language-Team: sa <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -30,6 +33,18 @@ msgstr "दानपञ्जिका"
 #: app/templates/base.html:29
 msgid "Login"
 msgstr "प्रवेशः"
+
+#: app/templates/index.html:23
+msgid "Donate"
+msgstr ""
+
+#: app/templates/index.html:26
+msgid "Support the temple by donating securely via Razorpay."
+msgstr ""
+
+#: app/templates/index.html:32
+msgid "Donate Now"
+msgstr ""
 
 #: app/templates/ledger.html:4
 msgid "Open Donation Ledger"
