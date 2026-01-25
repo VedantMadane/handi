@@ -23,10 +23,19 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="/">Home/Darshan</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/events">Events</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/ledger">Open Ledger</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/login">Login</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/">{{ _('Home') }}/{{ _('Darshan') }}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/events">{{ _('Events') }}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/ledger">{{ _('Open Ledger') }}</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/login">{{ _('Login') }}</a></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="langDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Language
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="langDropdown">
+                            <li><a class="dropdown-item" href="?lang=en">English</a></li>
+                            <li><a class="dropdown-item" href="?lang=es">Español</a></li>
+                        </ul>
+                    </li>
                 </ul>
             </div>
         </div>

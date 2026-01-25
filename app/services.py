@@ -4,13 +4,14 @@ from sqlalchemy import select, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import Donation, User
 
-async def calculate_donation_hash(prev_hash: str, amount: float, donor_id: int, timestamp: datetime, purpose: str) -> str:
+async def calculate_donation_hash(prev_hash: str, amount: float, currency: str, donor_id: int, timestamp: datetime, purpose: str) -> str:
     # Normalize timestamp to string
     ts_str = timestamp.isoformat()
-    data = f"{prev_hash}{amount}{donor_id}{ts_str}{purpose}"
+    # Added currency to the hash input
+    data = f"{prev_hash}{amount}{currency}{donor_id}{ts_str}{purpose}"
     return hashlib.sha256(data.encode()).hexdigest()
 
-async def create_donation(db: AsyncSession, amount: float, donor_id: int, purpose: str, note: str = None) -> Donation:
+async def create_donation(db: AsyncSession, amount: float, donor_id: int, purpose: str, currency: str = "USD", note: str = None) -> Donation:
     # 1. Get the latest donation to find the previous hash
     # Order by ID desc to get the last one
     stmt = select(Donation).order_by(desc(Donation.id)).limit(1)
@@ -25,12 +26,13 @@ async def create_donation(db: AsyncSession, amount: float, donor_id: int, purpos
 
     timestamp = datetime.utcnow()
 
-    # 2. Calculate new hash
-    record_hash = await calculate_donation_hash(prev_hash, amount, donor_id, timestamp, purpose)
+    # 2. Calculate new hash (Now includes currency)
+    record_hash = await calculate_donation_hash(prev_hash, amount, currency, donor_id, timestamp, purpose)
 
     # 3. Create record
     new_donation = Donation(
         amount=amount,
+        currency=currency,
         donor_id=donor_id,
         purpose=purpose,
         note=note,

@@ -9,21 +9,28 @@ from app.models import Event, Donation, Attendance
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
 
+# Helper to add 'gettext' aka '_' to the context
+def render(request: Request, name: str, context: dict):
+    # Retrieve the gettext function from request state (set in middleware)
+    _ = getattr(request.state, "gettext", lambda x: x)
+    context.update({"request": request, "_": _})
+    return templates.TemplateResponse(name, context)
+
 @router.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    return render(request, "index.html", {})
 
 @router.get("/ledger", response_class=HTMLResponse)
 async def ledger(request: Request, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Donation).order_by(Donation.id.desc()))
     donations = result.scalars().all()
-    return templates.TemplateResponse("ledger.html", {"request": request, "donations": donations})
+    return render(request, "ledger.html", {"donations": donations})
 
 @router.get("/events", response_class=HTMLResponse)
 async def events_list(request: Request, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Event).order_by(Event.start_time))
     events = result.scalars().all()
-    return templates.TemplateResponse("events.html", {"request": request, "events": events})
+    return render(request, "events.html", {"events": events})
 
 @router.post("/events/{event_id}/rsvp", response_class=HTMLResponse)
 async def rsvp(event_id: int, request: Request, db: AsyncSession = Depends(get_db)):

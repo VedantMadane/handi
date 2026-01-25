@@ -1,0 +1,68 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2025-01-25 10:48+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: app/templates/base.html:26
+msgid "Home"
+msgstr "Inicio"
+
+#: app/templates/base.html:26
+msgid "Darshan"
+msgstr "Darshan"
+
+#: app/templates/base.html:27
+msgid "Events"
+msgstr "Eventos"
+
+#: app/templates/base.html:28
+msgid "Open Ledger"
+msgstr "Libro Abierto"
+
+#: app/templates/base.html:29
+msgid "Login"
+msgstr "Iniciar Sesión"
+
+#: app/templates/ledger.html:4
+msgid "Open Donation Ledger"
+msgstr "Libro Abierto de Donaciones"
+
+#: app/templates/ledger.html:5
+msgid "A transparent, immutable record of all contributions."
+msgstr "Un registro transparente e inmutable de todas las contribuciones."
+
+#: app/templates/ledger.html:10
+msgid "ID"
+msgstr "ID"
+
+#: app/templates/ledger.html:11
+msgid "Amount"
+msgstr "Monto"
+
+#: app/templates/ledger.html:12
+msgid "Currency"
+msgstr "Moneda"
+
+#: app/templates/ledger.html:13
+msgid "Purpose"
+msgstr "Propósito"
+
+#: app/templates/ledger.html:14
+msgid "Donor ID"
+msgstr "ID del Donante"
+
+#: app/templates/ledger.html:15
+msgid "Timestamp"
+msgstr "Marca de tiempo"
+
+#: app/templates/ledger.html:16
+msgid "Record Hash (SHA-256)"
+msgstr "Hash del Registro (SHA-256)"

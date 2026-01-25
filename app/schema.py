@@ -19,6 +19,7 @@ class UserType:
 class DonationType:
     id: int
     amount: float
+    currency: str
     purpose: str
     note: Optional[str]
     timestamp: datetime
@@ -71,6 +72,7 @@ class Query:
             DonationType(
                 id=d.id,
                 amount=d.amount,
+                currency=d.currency,
                 purpose=d.purpose,
                 note=d.note,
                 timestamp=d.timestamp,
