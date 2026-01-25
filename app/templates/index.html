@@ -23,73 +23,273 @@
             {{ _('Donate') }}
         </div>
         <div class="card-body">
-            <p class="card-text">{{ _('Support the temple by donating securely via Razorpay.') }}</p>
+            <p class="card-text">{{ _('Support the temple by donating securely.') }}</p>
+
             <div class="row justify-content-center">
-                <div class="col-md-4">
+                <div class="col-md-6">
+                    <!-- Amount Input -->
                     <div class="input-group mb-3">
                         <span class="input-group-text">₹</span>
                         <input type="number" id="donationAmount" class="form-control" placeholder="101" value="101">
-                        <button class="btn btn-primary" onclick="donate()">{{ _('Donate Now') }}</button>
                     </div>
+
+                    <!-- Provider Selection -->
+                    <div class="mb-3">
+                        <label class="form-label">Select Payment Method:</label>
+                        <div class="d-flex justify-content-center gap-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="paymentProvider" id="providerRazorpay" value="razorpay" checked onchange="toggleProviders()">
+                                <label class="form-check-label" for="providerRazorpay">Razorpay</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="paymentProvider" id="providerStripe" value="stripe" onchange="toggleProviders()">
+                                <label class="form-check-label" for="providerStripe">Stripe</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="paymentProvider" id="providerPaypal" value="paypal" onchange="toggleProviders()">
+                                <label class="form-check-label" for="providerPaypal">PayPal</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div id="razorpay-section">
+                        <button class="btn btn-primary w-100" onclick="initiateRazorpay()">Donate with Razorpay</button>
+                    </div>
+
+                    <div id="stripe-section" style="display: none;">
+                        <button class="btn btn-primary w-100" onclick="initiateStripe()">Donate with Stripe</button>
+                    </div>
+
+                    <div id="paypal-section" style="display: none;">
+                        <div id="paypal-button-container"></div>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Stripe Modal -->
+<div class="modal fade" id="stripeModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Complete Payment</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="payment-element">
+          <!--Stripe.js injects the Payment Element-->
+        </div>
+        <div id="stripe-error-message" class="text-danger mt-2"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="stripe-submit" onclick="confirmStripePayment()">Pay Now</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- External Scripts -->
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://js.stripe.com/v3/"></script>
+<script src="https://www.paypal.com/sdk/js?client-id={{ paypal_client_id }}&currency=INR"></script>
+
 <script>
-async function donate() {
-    const amount = document.getElementById("donationAmount").value;
+    // Config
+    const stripePublicKey = "{{ stripe_publishable_key }}";
+    let stripe = null;
+    let elements = null;
+    let currentStripeClientSecret = null;
 
-    // 1. Create Order
-    const response = await fetch("/donations/create_order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: parseFloat(amount), currency: "INR" })
-    });
-
-    if (!response.ok) {
-        alert("Error creating order");
-        return;
+    // Initialize Stripe
+    if (stripePublicKey && stripePublicKey !== "pk_test_placeholder") {
+        stripe = Stripe(stripePublicKey);
     }
 
-    const order = await response.json();
+    function toggleProviders() {
+        const provider = document.querySelector('input[name="paymentProvider"]:checked').value;
+        document.getElementById('razorpay-section').style.display = provider === 'razorpay' ? 'block' : 'none';
+        document.getElementById('stripe-section').style.display = provider === 'stripe' ? 'block' : 'none';
+        document.getElementById('paypal-section').style.display = provider === 'paypal' ? 'block' : 'none';
+    }
 
-    // 2. Open Razorpay Checkout
-    var options = {
-        "key": order.key_id,
-        "amount": order.amount,
-        "currency": order.currency,
-        "name": "Handi Temple",
-        "description": "Donation",
-        "order_id": order.id,
-        "handler": async function (response){
-            // 3. Verify Payment
-            const verifyResponse = await fetch("/donations/verify", {
+    // --- Razorpay ---
+    async function initiateRazorpay() {
+        const amount = document.getElementById("donationAmount").value;
+
+        try {
+            const response = await fetch("/donations/create_order", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ amount: parseFloat(amount), currency: "INR", provider: "razorpay" })
+            });
+
+            if (!response.ok) throw new Error("Order creation failed");
+            const order = await response.json();
+
+            var options = {
+                "key": order.key_id,
+                "amount": order.amount,
+                "currency": order.currency,
+                "name": "Handi Temple",
+                "description": "Donation",
+                "order_id": order.id,
+                "handler": async function (response){
+                    const verifyResponse = await fetch("/donations/verify", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            provider: "razorpay",
+                            amount: parseFloat(amount),
+                            currency: "INR",
+                            purpose: "Online Donation",
+                            payment_data: {
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_signature: response.razorpay_signature
+                            }
+                        })
+                    });
+
+                    if (verifyResponse.ok) {
+                        alert("Donation Successful!");
+                        window.location.href = "/ledger";
+                    } else {
+                        alert("Verification Failed");
+                    }
+                },
+                "theme": { "color": "#198754" }
+            };
+            var rzp1 = new Razorpay(options);
+            rzp1.open();
+
+        } catch (e) {
+            console.error(e);
+            alert("Error initiating Razorpay");
+        }
+    }
+
+    // --- Stripe ---
+    async function initiateStripe() {
+        if (!stripe) { alert("Stripe not configured"); return; }
+        const amount = document.getElementById("donationAmount").value;
+
+        try {
+            const response = await fetch("/donations/create_order", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ amount: parseFloat(amount), currency: "INR", provider: "stripe" })
+            });
+
+            if (!response.ok) throw new Error("Order creation failed");
+            const data = await response.json();
+
+            currentStripeClientSecret = data.client_secret;
+
+            // Show Modal
+            const modal = new bootstrap.Modal(document.getElementById('stripeModal'));
+            modal.show();
+
+            // Init Elements
+            elements = stripe.elements({ clientSecret: currentStripeClientSecret });
+            const paymentElement = elements.create('payment');
+            paymentElement.mount('#payment-element');
+
+        } catch (e) {
+            console.error(e);
+            alert("Error initiating Stripe");
+        }
+    }
+
+    async function confirmStripePayment() {
+        if (!stripe || !elements) return;
+
+        const { error, paymentIntent } = await stripe.confirmPayment({
+            elements,
+            confirmParams: {
+                return_url: window.location.origin + "/ledger", // Stripe redirects here on success
+            },
+            redirect: "if_required"
+        });
+
+        if (error) {
+            document.getElementById('stripe-error-message').textContent = error.message;
+        } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+             // Manual verification call if redirect didn't happen (magic loop)
+             // Although with 'if_required', it might not redirect.
+             // Let's call verify
+             const amount = document.getElementById("donationAmount").value;
+
+             await fetch("/donations/verify", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    razorpay_payment_id: response.razorpay_payment_id,
-                    razorpay_order_id: response.razorpay_order_id,
-                    razorpay_signature: response.razorpay_signature,
+                    provider: "stripe",
                     amount: parseFloat(amount),
                     currency: "INR",
-                    purpose: "Online Donation"
+                    purpose: "Online Donation",
+                    payment_data: {
+                        payment_intent_id: paymentIntent.id
+                    }
                 })
             });
 
-            if (verifyResponse.ok) {
-                alert("Donation Successful! Added to Open Ledger.");
+            window.location.href = "/ledger";
+        }
+    }
+
+    // --- PayPal ---
+    // Note: PayPal SDK renders buttons automatically. We need to hook into createOrder/onApprove.
+    // However, the amount is dynamic.
+    // The PayPal SDK is usually initialized with a specific client ID.
+    // To handle dynamic amounts, we use the createOrder callback.
+
+    paypal.Buttons({
+        createOrder: async function(data, actions) {
+            const amount = document.getElementById("donationAmount").value;
+            // Call backend to create order
+            const response = await fetch("/donations/create_order", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ amount: parseFloat(amount), currency: "INR", provider: "paypal" })
+            });
+
+            const orderData = await response.json();
+            return orderData.order_id; // Return the PayPal Order ID
+        },
+        onApprove: async function(data, actions) {
+            const amount = document.getElementById("donationAmount").value;
+            // Call backend to capture/verify
+            const response = await fetch("/donations/verify", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    provider: "paypal",
+                    amount: parseFloat(amount),
+                    currency: "INR",
+                    purpose: "Online Donation",
+                    payment_data: {
+                        paypal_order_id: data.orderID
+                    }
+                })
+            });
+
+            if (response.ok) {
+                alert("Donation Successful!");
                 window.location.href = "/ledger";
             } else {
-                alert("Verification Failed");
+                alert("PayPal Verification Failed");
             }
         },
-        "theme": { "color": "#198754" }
-    };
-    var rzp1 = new Razorpay(options);
-    rzp1.open();
-}
+        onError: function(err) {
+            console.error(err);
+            alert("PayPal Error");
+        }
+    }).render('#paypal-button-container');
+
 </script>
 {% endblock %}

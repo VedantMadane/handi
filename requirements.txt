@@ -12,3 +12,5 @@ httpx
 Babel
 gunicorn
 razorpay
+stripe
+paypal-checkout-serversdk

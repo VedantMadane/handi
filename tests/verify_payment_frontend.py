@@ -10,8 +10,18 @@ def run(playwright):
     expect(page.get_by_text("Donate", exact=True)).to_be_visible()
     expect(page.get_by_placeholder("101")).to_be_visible()
 
-    # Take screenshot of Home Page with Donate Button
-    page.screenshot(path="frontend_verification_payment.png")
+    # Check Provider Selection
+    expect(page.get_by_label("Razorpay")).to_be_visible()
+    expect(page.get_by_label("Stripe")).to_be_visible()
+    expect(page.get_by_label("PayPal")).to_be_visible()
+
+    # Check Default State (Razorpay selected, others hidden)
+    expect(page.locator("#razorpay-section")).to_be_visible()
+    expect(page.locator("#stripe-section")).not_to_be_visible()
+    expect(page.locator("#paypal-section")).not_to_be_visible()
+
+    # Take screenshot
+    page.screenshot(path="frontend_verification_payment.png", full_page=True)
 
     browser.close()
 

@@ -5,6 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.models import Event, Donation, Attendance
+from app.config import STRIPE_PUBLISHABLE_KEY, PAYPAL_CLIENT_ID
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -18,7 +19,10 @@ def render(request: Request, name: str, context: dict):
 
 @router.get("/", response_class=HTMLResponse)
 async def home(request: Request):
-    return render(request, "index.html", {})
+    return render(request, "index.html", {
+        "stripe_publishable_key": STRIPE_PUBLISHABLE_KEY,
+        "paypal_client_id": PAYPAL_CLIENT_ID
+    })
 
 @router.get("/ledger", response_class=HTMLResponse)
 async def ledger(request: Request, db: AsyncSession = Depends(get_db)):
