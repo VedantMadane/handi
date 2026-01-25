@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Upcoming Events</h2>
+
+<div class="row mt-4">
+    {% for event in events %}
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">{{ event.title }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">{{ event.start_time.strftime('%Y-%m-%d %H:%M') }}</h6>
+                <p class="card-text">{{ event.description }}</p>
+                <p class="card-text"><small class="text-muted">Location: {{ event.location }}</small></p>
+
+                <div id="rsvp-area-{{ event.id }}">
+                    <button class="btn btn-primary"
+                            hx-post="/events/{{ event.id }}/rsvp"
+                            hx-swap="outerHTML">
+                        RSVP Now
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

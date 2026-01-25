@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+asyncpg
+aiosqlite
+strawberry-graphql[fastapi]
+jinja2
+python-multipart
+passlib[bcrypt]
+python-jose[cryptography]
+httpx
