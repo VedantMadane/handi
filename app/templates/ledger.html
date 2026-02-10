@@ -4,6 +4,8 @@
 <h2>{{ _('Open Donation Ledger') }}</h2>
 <p class="text-muted">{{ _('A transparent, immutable record of all contributions.') }}</p>
 
+<p>{{ _('Total Donations') }}: {{ total_donations }}</p>
+
 <table class="table table-striped table-hover mt-3">
     <thead class="table-dark">
         <tr>
@@ -30,4 +32,25 @@
         {% endfor %}
     </tbody>
 </table>
+
+<nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+        <!-- Previous Page -->
+        <li class="page-item {% if page <= 1 %}disabled{% endif %}">
+            <a class="page-link" href="?page={{ page - 1 }}&page_size={{ page_size }}" tabindex="-1">{{ _('Previous') }}</a>
+        </li>
+
+        <!-- Current Page Info -->
+        <li class="page-item disabled">
+            <span class="page-link">
+                {{ _('Page') }} {{ page }} {{ _('of') }} {{ total_pages }}
+            </span>
+        </li>
+
+        <!-- Next Page -->
+        <li class="page-item {% if page >= total_pages %}disabled{% endif %}">
+            <a class="page-link" href="?page={{ page + 1 }}&page_size={{ page_size }}">{{ _('Next') }}</a>
+        </li>
+    </ul>
+</nav>
 {% endblock %}

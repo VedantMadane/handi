@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Request, Depends
+import math
+from fastapi import APIRouter, Request, Depends, Query
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.models import Event, Donation, Attendance
@@ -25,10 +26,38 @@ async def home(request: Request):
     })
 
 @router.get("/ledger", response_class=HTMLResponse)
-async def ledger(request: Request, db: AsyncSession = Depends(get_db)):
-    result = await db.execute(select(Donation).order_by(Donation.id.desc()))
+async def ledger(
+    request: Request,
+    page: int = Query(1, ge=1, description="Page number"),
+    page_size: int = Query(50, ge=1, le=100, description="Items per page"),
+    db: AsyncSession = Depends(get_db)
+):
+    # Calculate offset
+    offset = (page - 1) * page_size
+
+    # Get total count
+    count_result = await db.execute(select(func.count()).select_from(Donation))
+    total_donations = count_result.scalar() or 0
+
+    # Get paginated results
+    result = await db.execute(
+        select(Donation)
+        .order_by(Donation.id.desc())
+        .offset(offset)
+        .limit(page_size)
+    )
     donations = result.scalars().all()
-    return render(request, "ledger.html", {"donations": donations})
+
+    # Calculate total pages
+    total_pages = math.ceil(total_donations / page_size)
+
+    return render(request, "ledger.html", {
+        "donations": donations,
+        "page": page,
+        "page_size": page_size,
+        "total_pages": total_pages,
+        "total_donations": total_donations
+    })
 
 @router.get("/events", response_class=HTMLResponse)
 async def events_list(request: Request, db: AsyncSession = Depends(get_db)):
