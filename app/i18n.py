@@ -1,4 +1,5 @@
 import os
+from functools import lru_cache
 from babel.support import Translations
 from fastapi import Request
 
@@ -22,6 +23,7 @@ def get_locale(request: Request) -> str:
 
     return "en" # Default
 
+@lru_cache(maxsize=128)
 def get_translations(locale: str):
     translations = Translations.load(LOCALE_DIR, [locale])
     return translations
