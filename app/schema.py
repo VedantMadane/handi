@@ -49,9 +49,9 @@ class StaffType:
 @strawberry.type
 class Query:
     @strawberry.field
-    async def users(self, info: Info) -> List[UserType]:
+    async def users(self, info: Info, limit: int = 100, offset: int = 0) -> List[UserType]:
         db = info.context["db"]
-        result = await db.execute(select(User))
+        result = await db.execute(select(User).limit(limit).offset(offset))
         users = result.scalars().all()
         return [
             UserType(
