@@ -1,3 +1,4 @@
+import asyncio
 import razorpay
 from typing import Dict, Any
 from app.config import RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET
@@ -14,7 +15,13 @@ class RazorpayProvider(PaymentProvider):
             "currency": currency,
             "payment_capture": 1
         }
-        order = self.client.order.create(data=order_data)
+
+        loop = asyncio.get_event_loop()
+        order = await loop.run_in_executor(
+            None,
+            lambda: self.client.order.create(data=order_data)
+        )
+
         return {
             "provider": "razorpay",
             "order_id": order["id"],
@@ -31,7 +38,11 @@ class RazorpayProvider(PaymentProvider):
         }
 
         # Verify signature - raises error if invalid
-        self.client.utility.verify_payment_signature(params_dict)
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(
+            None,
+            lambda: self.client.utility.verify_payment_signature(params_dict)
+        )
 
         return {
             "transaction_id": data.get('razorpay_payment_id'),
