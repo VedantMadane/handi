@@ -43,8 +43,8 @@ async def rsvp(event_id: int, request: Request, db: AsyncSession = Depends(get_d
     user_id = 1
 
     # Check if already RSVP'd
-    result = await db.execute(select(Attendance).where(Attendance.event_id == event_id, Attendance.user_id == user_id))
-    existing = result.scalars().first()
+    result = await db.execute(select(Attendance.id).where(Attendance.event_id == event_id, Attendance.user_id == user_id))
+    existing = result.scalar()
 
     if not existing:
         new_attendance = Attendance(event_id=event_id, user_id=user_id, status="registered")
